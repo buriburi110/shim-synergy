@@ -69,7 +69,7 @@ $('copy-ip').onclick = async () => { if (!state.addresses.length) return toast('
 $('connect').onclick = async () => {
   if (busy) return;
   if (state.settings.peer) { if (state.settings.role === 'client' && $('host').value.trim() !== state.settings.peer.host) await invoke('address:update', $('host').value.trim()); await invoke('engine:start'); return; }
-  if (state.settings.role === 'server') { const code = await invoke('pair:open'); if (code) { toast('10분 동안 연결 요청을 받습니다. 다른 컴퓨터에서 이 IP를 입력하세요.'); $('verify-number').textContent = number(state.fingerprint); $('verify-peer').textContent = '주 컴퓨터 확인 번호 · 다른 컴퓨터에서도 이 번호가 보여야 해요.'; challenge = null; $('confirm-peer').hidden = true; openDialog('verify-dialog'); } return; }
+  if (state.settings.role === 'server') { const code = await invoke('pair:open'); if (code) { toast('10분 동안 연결 요청을 받습니다. 다른 컴퓨터에서 이 IP를 입력하세요.'); $('verify-number').textContent = number(state.fingerprint); $('verify-peer').textContent = `주 컴퓨터 IP: ${state.addresses.map(a => a.address).join(' · ')} · 다른 컴퓨터에서도 같은 번호가 보여야 해요.`; challenge = null; $('confirm-peer').hidden = true; openDialog('verify-dialog'); } return; }
   if (!$('host').value.trim()) { $('host').focus(); toast('주 컴퓨터의 IP 주소를 입력해 주세요.'); return; }
   busy = true; render(state); challenge = await invoke('pair:discover', $('host').value.trim()); busy = false; render(state);
   if (challenge) { $('verify-number').textContent = number(challenge.fingerprint); $('verify-peer').textContent = `${challenge.name} · ${$('host').value.trim()}`; $('confirm-peer').hidden = false; openDialog('verify-dialog'); }

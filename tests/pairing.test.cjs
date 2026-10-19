@@ -48,3 +48,9 @@ test('expired codes and oversized input fail before network access', () => {
   const code={host:'127.0.0.1',name:'shim-mac',fingerprint:'a'.repeat(64),token:'b'.repeat(64),port:24801,expires:Date.now()-1};
   assert.throws(()=>decodeCode('SHIM1.'+Buffer.from(JSON.stringify(code)).toString('base64url')));
 });
+test('stopping the pairing listener rejects a waiting request and releases its port', async () => {
+  const s=server(); const code=await s.open('127.0.0.1',0);
+  const arrived=new Promise(resolve=>s.once('pending',p=>{if(p) resolve();}));
+  const outcome=requestPair(code,clientId,device,3000).then(()=>false,()=>true);
+  await arrived; await s.close(); assert.equal(await outcome,true); assert.equal(s.pending,null);
+});

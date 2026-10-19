@@ -42,6 +42,7 @@
       }
     ],
     "artifactName": "ShimSynergy-${version}-${os}-${arch}.${ext}",
+    "msiProjectCreated": "scripts/localize-msi.cjs",
     "win": {
       "target": [
         "msi"
@@ -50,6 +51,7 @@
       "signExecutable": false
     },
     "msi": {
+      "additionalLightArgs": ["-cultures:ko-kr"],
       "oneClick": false,
       "perMachine": false,
       "createDesktopShortcut": true,
@@ -66,6 +68,8 @@
       "hardenedRuntime": false
     },
     "pkg": {
+      "welcome": "build/welcome.html",
+      "conclusion": "build/conclusion.html",
       "installLocation": "/Applications",
       "allowAnywhere": false,
       "allowCurrentUserHome": false,

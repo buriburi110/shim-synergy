@@ -20,6 +20,11 @@ test('names cannot inject new configuration sections', () => {
   assert.throws(()=>validateSettings({...defaults(),name:'evil\n[security]'}));
   assert.throws(()=>validateSettings({...defaults(),peer:{name:'shim-mac',host:'127.0.0.1',fingerprint:'invalid'}}));
 });
+test('Windows as the controlling computer reverses the edge direction relative to the Mac', () => {
+  const s = {...defaults('win32'),role:'server',position:'right',peer:{name:'shim-mac',platform:'darwin',host:'192.168.0.3',fingerprint:'a'.repeat(64)}};
+  assert.match(serverConfig(s),/shim-windows:\n    left = shim-mac/);
+  assert.match(serverConfig(s),/shim-mac:\n    right = shim-windows/);
+});
 test('process existence and failed connection logs never imply a connected peer', () => {
   assert.equal(logState('started server, waiting for clients'), 'listening');
   assert.equal(logState('client "shim-windows" has connected'), 'connected');
