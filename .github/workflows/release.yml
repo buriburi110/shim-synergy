@@ -30,6 +30,7 @@ jobs:
         with: { node-version: '24', cache: npm }
       - run: npm ci
       - run: node scripts/prepare-engine.cjs ${{ matrix.arch }}
+      - run: node scripts/verify-engine.cjs ${{ matrix.arch }}
       - run: npx electron-builder --${{ matrix.platform }} --${{ matrix.arch }} --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'

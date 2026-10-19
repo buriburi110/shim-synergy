@@ -31,7 +31,7 @@ async function main() {
     fs.cpSync(extracted, destination, { recursive: true });
   } else {
     const mount = path.join(temp, 'mounted'); fs.mkdirSync(mount);
-    execFileSync('hdiutil', ['attach', archive, '-readonly', '-nobrowse', '-mountpoint', mount]);
+    execFileSync('hdiutil', ['attach', archive, '-readonly', '-nobrowse', '-mountpoint', mount], { input: 'Y\n' });
     try {
       const bundle = fs.readdirSync(mount).find(name => name.toLowerCase().endsWith('.app'));
       if (!bundle) throw new Error('DMG에서 앱을 찾지 못했습니다.');

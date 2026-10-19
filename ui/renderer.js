@@ -31,7 +31,8 @@ function render(next) {
   for (const key of ['mac-state','win-state']) $(key).textContent = connected ? '● 안전하게 연결됐어요' : s.peer ? '● 연결 정보가 저장됐어요' : '○ 연결을 기다리고 있어요';
   const effective = macServer ? s.position : {left:'right',right:'left',above:'below',below:'above'}[s.position];
   const direction = { left: '왼쪽', right: '오른쪽', above: '위쪽', below: '아래쪽' }[effective];
-  $('flow-caption').textContent = `${macServer ? '맥' : '윈도우'} 화면 ${direction} 끝으로 마우스를 움직이면 ${macServer ? '윈도우' : '맥'}로 이어집니다.`;
+  $('flow-caption').textContent = `${macServer ? '맥' : '윈도우'} 화면 ${direction} 끝으로 마우스를 움직이면 ${macServer ? '윈도우로' : '맥으로'} 이어집니다.`;
+  $('modifier-description').textContent = macServer ? '맥의 ⌘를 윈도우의 Ctrl로 연결합니다.' : '윈도우의 Ctrl을 맥의 ⌘로 연결합니다.';
   $('connect-title').textContent = server ? '이 컴퓨터의 키보드·마우스로 함께 쓰기' : `${macServer ? '맥' : '주 컴퓨터'}의 IP 주소로 연결하기`;
   $('connect-description').textContent = server ? '‘연결 받기’를 누른 뒤, 다른 컴퓨터에 아래 IP를 입력하세요.' : '주 컴퓨터에서 ‘연결 받기’를 누르고, IP를 입력하세요.';
   $('host-label').hidden = server;
