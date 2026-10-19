@@ -15,6 +15,17 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else {
   function save() { fs.writeFileSync(configFile() + '.tmp', JSON.stringify(settings, null, 2), { mode: 0o600 }); fs.renameSync(configFile() + '.tmp', configFile()); }
   function state() { return { settings, platform: process.platform, addresses: networkAddresses(), status: engine?.status || 'idle', engineReady: !!engine?.executable, preparing, fingerprint: id?.fingerprint, pending, pairingExpires, error, logs: engine?.logs || [], version: app.getVersion(), preview: false }; }
   function broadcast() { if (window && !window.isDestroyed()) window.webContents.send('state', state()); }
+  async function showWindow() {
+    if (quitting) return;
+    if (!window || window.isDestroyed()) await createWindow();
+    if (window.isMinimized()) window.restore();
+    window.show(); window.focus();
+  }
+  function reopen() { showWindow().catch(e => { error = e.message; broadcast(); }); }
+  async function stopSharing() {
+    try { await engine.stop(); }
+    finally { if (pairing) await pairing.close(); pairingExpires = null; broadcast(); }
+  }
   function handle(name, action) {
     ipcMain.handle(name, async (event, ...args) => {
       if (event.sender !== window?.webContents || !event.senderFrame.url.startsWith('file://')) throw new Error('접근할 수 없는 창입니다.');
@@ -28,6 +39,8 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else {
     if (!address) throw new Error('네트워크 연결을 확인해 주세요.');
     if (pairing) await pairing.close();
     pairing = new PairingServer(id, { name: settings.name, platform: process.platform, position: settings.position, enginePort: settings.port });
+    const activePairing = pairing;
+    pairing.on('closed', () => { if (pairing === activePairing) { pairingExpires = null; broadcast(); } });
     pairing.on('pending', value => { pending = value; broadcast(); });
     pairing.on('approved', peer => {
       settings.peer = peer; save();
@@ -43,7 +56,7 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else {
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
     window.webContents.on('will-navigate', event => event.preventDefault());
     await window.loadFile(path.join(__dirname, '..', 'ui', 'index.html'));
-    window.on('close', event => { if (!quitting && tray && engine?.child) { event.preventDefault(); window.hide(); } });
+    window.on('close', event => { if (!quitting && tray) { event.preventDefault(); window.hide(); } });
   }
   app.whenReady().then(async () => {
     Menu.setApplicationMenu(null);
@@ -70,9 +83,9 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else {
       settings.role = 'client'; settings.peer = peer; settings.position = peer.position; settings.port = peer.port;
       validateSettings(settings); save(); receivedCode = null; await engine.start(settings); return state();
     });
-    handle('pair:respond', async (requestId, approved) => { pairing.respond(requestId, approved === true); pairingExpires = null; return state(); });
+    handle('pair:respond', async (requestId, approved) => { pairing.respond(requestId, approved === true); return state(); });
     handle('engine:start', async () => { await engine.start(settings); return state(); });
-    handle('engine:stop', async () => { await engine.stop(); if (pairing) await pairing.close(); pairingExpires = null; return state(); });
+    handle('engine:stop', async () => { await stopSharing(); return state(); });
     handle('peer:forget', async () => { await engine.stop(); if (pairing) await pairing.close(); settings.peer = null; save(); return state(); });
     handle('address:update', async host => {
       if (!settings.peer || !validHost(host)) throw new Error('올바른 컴퓨터 주소를 입력해 주세요.');
@@ -86,11 +99,12 @@ if (!app.requestSingleInstanceLock()) { app.quit(); } else {
     handle('logs:open', async () => { const file = path.join(dataDir, 'diagnostics.txt'); fs.writeFileSync(file, engine.logs.map(l => `${l.at} ${l.text}`).join('\n')); await shell.openPath(file); });
     await createWindow();
     tray = new Tray(nativeImage.createFromPath(path.join(__dirname, '..', 'ui', 'icon.png')).resize({ width: 22, height: 22 }));
-    tray.setToolTip('시너지 · 심현규님의 책상'); tray.setContextMenu(Menu.buildFromTemplate([{ label: '책상 열기', click: () => window.show() }, { label: '연결 중지', click: () => engine.stop() }, { type: 'separator' }, { label: '종료', click: () => app.quit() }]));
-    tray.on('click', () => window.show());
+    tray.setToolTip('시너지 · 심현규님의 책상'); tray.setContextMenu(Menu.buildFromTemplate([{ label: '책상 열기', click: reopen }, { label: '연결 중지', click: () => stopSharing().catch(e => { error = e.message; broadcast(); }) }, { type: 'separator' }, { label: '종료', click: () => app.quit() }]));
+    tray.on('click', reopen);
   }).catch(e => { console.error(e); app.quit(); });
-  app.on('second-instance', () => { if (window) { window.show(); window.focus(); } });
-  app.on('activate', () => window?.show());
+  app.on('second-instance', reopen);
+  app.on('activate', reopen);
+  app.on('window-all-closed', () => { if (!tray) app.quit(); });
   app.on('before-quit', event => {
     if (quitting) return; event.preventDefault(); quitting = true;
     Promise.allSettled([engine?.stop(), pairing?.close()]).finally(() => app.quit());

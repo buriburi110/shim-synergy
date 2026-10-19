@@ -1,6 +1,6 @@
 const $ = id => document.getElementById(id);
 const api = window.synergy;
-const preview = { preview: true, platform: 'win32', status: 'idle', engineReady: false, addresses: [], version: '0.1.0', fingerprint: '', logs: [], settings: { role: 'client', name: 'shim-windows', position: 'right', clipboard: true, swapModifiers: true, peer: null } };
+const preview = { preview: true, platform: 'win32', status: 'idle', engineReady: false, addresses: [], version: '0.1.1', fingerprint: '', logs: [], settings: { role: 'client', name: 'shim-windows', position: 'right', clipboard: true, swapModifiers: true, peer: null } };
 let state = preview, busy = false, challenge = null, toastTimer;
 const number = fp => (fp || '').slice(0, 12).toUpperCase().match(/.{1,4}/g)?.join(' · ') || '—';
 function toast(message) { $('toast').textContent = message; $('toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').hidden = true, 3500); }

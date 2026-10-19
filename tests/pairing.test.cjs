@@ -54,3 +54,10 @@ test('stopping the pairing listener rejects a waiting request and releases its p
   const outcome=requestPair(code,clientId,device,3000).then(()=>false,()=>true);
   await arrived; await s.close(); assert.equal(await outcome,true); assert.equal(s.pending,null);
 });
+test('pairing closure is reported once and discovery cannot continue after stop', async () => {
+  const s = server(); let closed = 0; s.on('closed',()=>closed++);
+  const code = decodeCode(await s.open('127.0.0.1',0));
+  await s.close(); await s.close();
+  assert.equal(closed,1);
+  await assert.rejects(discoverPeer('127.0.0.1',code.port));
+});

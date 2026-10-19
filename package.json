@@ -1,7 +1,7 @@
 {
   "name": "shim-synergy",
   "productName": "Shim Synergy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "심현규님의 맥과 윈도우를 잇는 한국어 키보드·마우스 공유 앱",
   "author": "Shim Hyunkyu",
   "private": true,
@@ -51,7 +51,9 @@
       "signExecutable": false
     },
     "msi": {
-      "additionalLightArgs": ["-cultures:ko-kr"],
+      "additionalLightArgs": [
+        "-cultures:ko-kr"
+      ],
       "oneClick": false,
       "perMachine": false,
       "createDesktopShortcut": true,

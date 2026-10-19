@@ -64,7 +64,10 @@ class PairingServer extends EventEmitter {
     clearTimeout(this.timer);
     if (this.pending) this.respond(this.pending.id, false);
     const server = this.server; this.server = null; this.token = '';
-    if (server) await new Promise(resolve => { server.close(resolve); server.closeAllConnections(); });
+    if (server) {
+      await new Promise(resolve => { server.close(resolve); server.closeAllConnections(); });
+      this.emit('closed');
+    }
   }
 }
 function discoverPeer(host, port = 24801) {
