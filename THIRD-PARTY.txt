@@ -1,0 +1,20 @@
+Shim Synergy — 심현규님의 책상
+
+이 프로젝트는 Synergy/Symless의 공식 제품이 아닙니다.
+한국어 화면과 연결 관리 코드는 본 저장소에 GPL-2.0-only로 공개합니다.
+
+입력 공유 엔진: Deskflow 1.27.0
+소스: https://github.com/deskflow/deskflow/tree/v1.27.0
+원본 커밋: 081f6478e654a112168879e67a41ce7d7e4ae3af
+라이선스: GPL-2.0-only WITH LicenseRef-OpenSSL-Exception
+엔진은 수정하지 않았으며, 배포물에 포함된 원본 라이선스와 고지를 보존합니다.
+정확한 엔진 소스 압축 파일을 GitHub Release에 설치 파일과 함께 제공합니다.
+
+분석한 Synergy Stream 소스:
+https://github.com/symless/synergy-stream/tree/c3f2e6942caec6a1faa77a498afbd1ddfb47c883
+Synergy Stream README는 Deskflow와 브랜딩 외의 코드가 같다고 밝힙니다.
+
+Electron: MIT, Chromium/Node.js 등 제삼자 고지는 런타임의 LICENSE 및 LICENSES.chromium.html 참조.
+selfsigned: MIT 라이선스. 인증서 생성은 WebCrypto 기반 @peculiar/x509를 사용합니다.
+
+배포에 포함된 Qt, OpenSSL, Visual C++ 런타임 등 제삼자 구성 요소는 각 원본 배포물의 고지를 따릅니다.

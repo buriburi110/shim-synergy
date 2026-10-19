@@ -1,0 +1,78 @@
+{
+  "name": "shim-synergy",
+  "productName": "Shim Synergy",
+  "version": "0.1.0",
+  "description": "심현규님의 맥과 윈도우를 잇는 한국어 키보드·마우스 공유 앱",
+  "author": "Shim Hyunkyu",
+  "private": true,
+  "license": "GPL-2.0-only",
+  "main": "app/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "preview": "node scripts/preview.cjs",
+    "test": "node --test tests/*.test.cjs",
+    "engine:prepare": "node scripts/prepare-engine.cjs",
+    "dist:win": "electron-builder --win msi --x64 --publish never",
+    "dist:mac": "electron-builder --mac pkg --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.9.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "kr.shim.synergy",
+    "productName": "Shim Synergy",
+    "directories": {
+      "output": "배포"
+    },
+    "files": [
+      "app/**/*",
+      "ui/**/*",
+      "package.json",
+      "LICENSE",
+      "THIRD-PARTY.txt"
+    ],
+    "extraResources": [
+      {
+        "from": "engine/${os}-${arch}",
+        "to": "engine",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "artifactName": "ShimSynergy-${version}-${os}-${arch}.${ext}",
+    "win": {
+      "target": [
+        "msi"
+      ],
+      "icon": "ui/icon.ico",
+      "signExecutable": false
+    },
+    "msi": {
+      "oneClick": false,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": false
+    },
+    "mac": {
+      "target": [
+        "pkg"
+      ],
+      "category": "public.app-category.utilities",
+      "icon": "ui/icon.png",
+      "identity": null,
+      "hardenedRuntime": false
+    },
+    "pkg": {
+      "installLocation": "/Applications",
+      "allowAnywhere": false,
+      "allowCurrentUserHome": false,
+      "allowRootDirectory": true
+    }
+  },
+  "dependencies": {
+    "selfsigned": "5.5.0"
+  }
+}

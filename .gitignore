@@ -1,0 +1,9 @@
+node_modules/
+engine/
+배포/
+work/
+*.log
+.DS_Store
+Thumbs.db
+*.pem
+preferences.json
